@@ -10,20 +10,14 @@ CreateWindow()
 ;Variables —————————————————————————————————————————————————————————
 ;———————————————————————————————————————————————————————————————————
 Action := new Action()
- 
 ;Botones ———————————————————————————————————————————————————————————
 ;———————————————————————————————————————————————————————————————————
 
-F5:: 
-; Action.Start("UseMacro")
-Action.Start("UseClick")
-Return
-
-|:: Action.ChangeType() Return
-
-F1:: reload Return
-
-F7:: exitapp
+F5:: Action.Start("UseClick") Return
+F6:: Action.Start("UseMacro") Return
+F7:: ExitApp
+MButton:: Action.ChangeType() Return
+^MButton:: Reload Return
 
 ;Interfaz ——————————————————————————————————————————————————————————
 ;———————————————————————————————————————————————————————————————————
