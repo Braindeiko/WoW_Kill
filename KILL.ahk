@@ -16,7 +16,7 @@ Action := new Action()
 F5:: Action.Start("UseClick") Return
 F6:: Action.Start("UseMacro") Return
 
-MButton:: Action.ChangeType() Return
+|:: Action.ChangeType() Return
 ^MButton:: Reload Return
 !MButton:: ExitApp
 
