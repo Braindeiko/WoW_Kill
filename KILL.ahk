@@ -52,11 +52,11 @@ Class Action
 			}
 			Else If (This.Type == "LOOT")
 			{
-				If This.readyToLoot()
-					Print("LOOT")
-				; This.tryChangeForm()
 				; If This.readyToLoot()
-					; This.tapButton()
+					; Print("LOOT")
+				This.tryChangeForm()
+				If This.readyToLoot()
+					This.tapButton()
 				This.lastType := "LOOT"
 				Sleep(16)
 			}
