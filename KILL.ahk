@@ -86,7 +86,8 @@ If(TypeNow != This.Type)
 		If((This.Type == "KILL"))
 		{
 			This.HumanMistake()
-			This.waitCD()
+			If(This.Mode == "UseMacro")
+				This.waitCD()
 			
 			If(This.SecondCast)
 			{
@@ -269,7 +270,7 @@ If(TypeNow != This.Type)
 			This.Type := "LOOT", This.lastType := "KILL"
 		Else
 			This.Type := "KILL", This.lastType := "LOOT"
-		Clear()
+		; Clear()
 		Print("--> " This.Type " <---")
 	}
 
