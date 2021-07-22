@@ -20,7 +20,7 @@ SendKey("{d up}")
 Reload
 Return
 
-f6:: Main()
+f7:: Main()
 Return
 
 f8::
