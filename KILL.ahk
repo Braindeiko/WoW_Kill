@@ -65,16 +65,14 @@ Loop
 			This.tapButton()
 			SoundPlay, %dirImage%soundLoot.mp3
 			BlockInput, Off
-			
-			If ((This.Type == "LOOT") And (This.Form == "Travel"))
-			{
-				Sleep(0, 50)
-				; Mientras salta ------
-				Sendkey("{Space down}")
-				Sleep(50, 130)
-				Sendkey("{Space up}")
-				; ---------------------
-			}
+			Sleep(300, 400)
+			; If ((This.Type == "LOOT") And (This.Form == "Travel"))
+			; {
+				; Sleep(0, 50)
+				; Sendkey("{Space down}")
+				; Sleep(140, 230)
+				; Sendkey("{Space up}")
+			; }
 		}
 		This.lastType := "LOOT"
 		Sleep(16)
@@ -103,11 +101,9 @@ Loop
 			This.TypeKill()
 			This.HumanMistake()
 			This.SecondCast()
-			If !This.waitCD()
-				This.setSleep()
-		}
-		Else If(This.Type == "LOOT")
 			This.setSleep()
+			This.waitCD()
+		}
 	}
 	
 	SecondCast()
