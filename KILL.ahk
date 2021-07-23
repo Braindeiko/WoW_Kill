@@ -62,6 +62,9 @@ Loop
 				
 			BlockInput, On
 			SendKey("{W UP}")
+			SendKey("{A UP}")
+			SendKey("{S UP}")
+			SendKey("{D UP}")
 			This.tapButton()
 			SoundPlay, %dirImage%soundLoot.mp3
 			BlockInput, Off
