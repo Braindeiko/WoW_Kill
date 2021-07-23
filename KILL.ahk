@@ -86,8 +86,7 @@ If(TypeNow != This.Type)
 		If((This.Type == "KILL"))
 		{
 			This.HumanMistake()
-			If(This.Mode == "UseMacro")
-				This.waitCD()
+			This.waitCD()
 			
 			If(This.SecondCast)
 			{
@@ -276,6 +275,7 @@ If(TypeNow != This.Type)
 
 	inHUD(name)
 	{
+		Win.Get()
 		Return Image(A, name, "", Window.W*(1/3), 0, Window.W*(2/3), 100)
 	}
 }
@@ -291,4 +291,5 @@ CreateWindow(titleWindow := False, dirWindow := False){
 	Window.Wait()
 	Window.Activate()
 	Window.Get()
+	; Window.Move(0, 0, 800, 600)
 }
