@@ -223,6 +223,7 @@ Loop
 		{
 			useCursor := True
 			SendClick("", "", Button, False)
+			useCursor := False
 		}
 ; ---------------------------------------------------------------------
 		This.Type := auxType
