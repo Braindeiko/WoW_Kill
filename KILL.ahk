@@ -13,6 +13,7 @@ Action := new Action()
 ;Botones ———————————————————————————————————————————————————————————
 ;———————————————————————————————————————————————————————————————————
 
+
 F5:: Action.Start("UseClick") Return
 F6:: Action.Start("UseMacro") Return
 
@@ -25,7 +26,7 @@ F6:: Action.Start("UseMacro") Return
 
 Class Action
 {
-	nClicks := 0, ClicksRandom := 0, lastCast := 0, lastSecondCast := 0
+	nClicks := ClicksRandom := lastCast := lastSecondCast := errorLoot := 0
 	
 	__NEW()
 	{
@@ -35,72 +36,94 @@ Class Action
 	Start(Mode)
 	{
 		This.Mode := Mode
-		If This.SecondCast := False
+		If This.secondCast := False
 			This.setRandDelay_SecondCast()
 		Print("S T A R T")
-		Loop
+Loop
+{
+	If(This.Type == "KILL")
+	{
+		This.tapButton()
+		This.lastType := "KILL"
+	}
+	Else If (This.Type == "LOOT")
+	{
+		This.tryChangeForm()
+		If(This.readyToLoot())
 		{
-			If(This.Type == "KILL")
+			If((A_TickCount - This.lastLoot) <= 600)
 			{
-				This.tapButton()
-				This.lastType := "KILL"
+				This.errorLoot++
+				If(This.errorLoot > 2)
+					Reload
 			}
-			Else If (This.Type == "LOOT")
+			Else
+				This.errorLoot := 0
+				
+			BlockInput, On
+			SendKey("{W UP}")
+			This.tapButton()
+			SoundPlay, %dirImage%soundLoot.mp3
+			BlockInput, Off
+			
+			If ((This.Type == "LOOT") And (This.Form == "Travel"))
 			{
-				; If This.readyToLoot()
-					; Print("LOOT")
-				This.tryChangeForm()
-				If This.readyToLoot()
-					This.tapButton()
-				This.lastType := "LOOT"
-				Sleep(16)
+				Sleep(0, 50)
+				; Mientras salta ------
+				Sendkey("{Space down}")
+				Sleep(50, 130)
+				Sendkey("{Space up}")
+				; ---------------------
 			}
 		}
+		This.lastType := "LOOT"
+		Sleep(16)
+	}
+}
 	}
 	
 	tapButton()
 	{
-		TypeNow := This.Type		
+		TypeNow := This.Type, This.nClicks++
 		This.setTaps()
 		This.setLastCoor()
 		
 		Print("[Btn " This.Type "]")
 		Loop % This.nTaps
 		{
-			Sleep(0, 70)
 			This.buttonAction()
+			Sleep(0, 70)
 		}
 		
-		This.nClicks++
-If(TypeNow != This.Type)
-	Return		
-		This.setSleep()	
-If(TypeNow != This.Type)
-		Return		
-		This.TypeKill()
-		
+		If(TypeNow != This.Type)
+			Return
+			
+		If(This.Type == "KILL")
+		{
+			This.TypeKill()
+			This.HumanMistake()
+			This.SecondCast()
+			If !This.waitCD()
+				This.setSleep()
+		}
+		Else If(This.Type == "LOOT")
+			This.setSleep()
 	}
 	
-	TypeKill()
+	SecondCast()
 	{
-		If((This.Type == "KILL"))
+		If(This.secondCast)
 		{
-			This.HumanMistake()
-			This.waitCD()
-			
-			If(This.SecondCast)
+			If(This.readyToSecondCast(5000))
 			{
-				If(This.readyToSecondCast(5000))
+				Sleep(100)
+				Loop % Rand(3, 7)
 				{
-					Sleep(100)
-					Loop % Rand(3, 7)
-					{
-						Sleep(0, 60)
-						This.buttonLoot()
-					}
-					This.lastSecondCast := A_TickCount
-					Print("[Loot]")
+					Sleep(0, 60)
+					This.buttonLoot()
 				}
+				This.lastSecondCast := A_TickCount
+				Print("[Loot]")
 			}
 		}
 	}
@@ -115,6 +138,7 @@ If(TypeNow != This.Type)
 		}
 		Print("CD: " A_TickCount - This.lastCast)
 		Sleep(0, 50)
+		Return This.CD
 	}
 	
 	comprobateCD()
@@ -137,14 +161,15 @@ If(TypeNow != This.Type)
 		If(This.Type == "KILL")
 			This.nTaps := Rand(3, 8)
 		Else If (This.Type == "LOOT")
-			This.nTaps := Rand(2, 5)
+			This.nTaps := Rand(2, 3)
 	}
 	
 	setLastCoor()
 	{	
 		If(This.nClicks >=  This.ClicksRandom)
 		{
-			This.nClicks := 0, This.ClicksRandom := Rand(5, 20)	
+			This.nClicks := 0
+			This.ClicksRandom := Rand(5, 20)	
 			This.lastCoorX := Rand(Window.W/2 + 50, Window.W - 50)
 			This.lastCoorY := Rand(Window.H/3, Window.H*2/3 - 30)
 		}
@@ -152,46 +177,56 @@ If(TypeNow != This.Type)
 	
 	setSleep()
 	{
-		If(This.Mode = "UseMacro")
-			Sleep(150, 400)
-		Else If(This.Mode = "UseClick")
+		If(This.Mode == "UseMacro")
+		{
+			If(This.Type == "KILL")
+				Sleep(150, 400)
+			Else If (This.Type == "LOOT")
+				Sleep(230, 330)
+		}
+		Else If(This.Mode == "UseClick")
 		{
 			If(This.Type == "KILL")
 				Sleep(188, 450)
 			Else If (This.Type == "LOOT")
-				Sleep(130, 300)
+				Sleep(230, 330)
 		}
 	}
 	
 	buttonAction(Type := "")
 	{
 		
+		auxType := This.Type
+		auxMode := This.Mode
+		
 		If(Type != "")
-			auxType := This.Type, This.Type := Type
+			This.Type := Type
 ; ---------------------------------------------------------------------
 		
 		If(This.Type == "KILL")
-				Button := "WU"
-		Else If (This.Type == "LOOT")
-				Button := "WD"
-		
-		If(This.Mode = "UseMacro")
+		{
+			Button := "WU"
+			This.lastCast := A_TickCount
+		}
+		Else If(This.Type == "LOOT")
+		{
+			Button := "WD"
+			This.lastLoot := A_TickCount
+			This.Mode := "UseClick"
+		}
+			
+		If(This.Mode == "UseMacro")
 		{
 			SendClick(This.lastCoorX, This.lastCoorY, Button, False)
 		}
-		Else If(This.Mode = "UseClick")
+		Else If(This.Mode == "UseClick")
 		{
 			useCursor := True
-			Window.Activate()
 			SendClick("", "", Button, False)
 		}
-
 ; ---------------------------------------------------------------------
-		
-		If(Type != "")
-			This.Type := auxType
-			
-		This.lastCast := A_TickCount
+		This.Type := auxType
+		This.Mode := auxMode
 	}
 
 ; L O O T {
