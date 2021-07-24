@@ -99,7 +99,7 @@ Loop
 	
 	comprobateErrorLoot()
 	{
-		If((A_TickCount - This.lastLoot) <= 700)
+		If((A_TickCount - This.lastLoot) <= 1000)
 		{
 			This.errorLoot++
 			If(This.errorLoot > 2)
@@ -227,14 +227,14 @@ Loop
 			If(This.Type == "KILL")
 				Sleep(150, 400)
 			Else If (This.Type == "LOOT")
-				Sleep(330, 400)
+				Sleep(550, 650)
 		}
 		Else If(This.Mode == "UseClick")
 		{
 			If(This.Type == "KILL")
 				Sleep(188, 450)
 			Else If (This.Type == "LOOT")
-				Sleep(330, 400)
+				Sleep(550, 650)
 		}
 	}
 	
