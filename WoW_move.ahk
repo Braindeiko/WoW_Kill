@@ -15,7 +15,7 @@ Move := new Move()
 ;———————————————————————————————————————————————————————————————————
 
 1::
-	Move.Random(-90, 0)
+	Move.Random(0, 45)
 Return 
 
 2::ExitApp Return

@@ -13,20 +13,34 @@ Action := new Action()
 ;Botones ———————————————————————————————————————————————————————————
 ;———————————————————————————————————————————————————————————————————
 
-
 F5:: Action.Start("UseClick") Return
 F6:: Action.Start("UseMacro") Return
+|:: 
+	Action.ChangeType()
+	If(GetKeyState("|") And Action.Start)
+	{
+		initPress := A_TickCount
+		While(GetKeyState("|"))
+		{
+			If((A_TickCount - initPress) >= 250)
+			{
+				Reload
+				Return
+			}
+		}
+	}
+Return
 
-|:: Action.ChangeType() Return
-^MButton:: Reload Return
-!MButton:: ExitApp
-
+!F12::
+	SoundPlay, %dirImage%soundLoot.mp3
+	Run, %comspec% /c SndVol.exe,, Hide
+Return
 ;Interfaz ——————————————————————————————————————————————————————————
 ;———————————————————————————————————————————————————————————————————
 
 Class Action
 {
-	nClicks := ClicksRandom := lastCast := lastSecondCast := errorLoot := 0
+	nClicks := ClicksRandom := lastCast := lastSecondCast := errorLoot := Start := 0
 	
 	__NEW()
 	{
@@ -35,7 +49,7 @@ Class Action
 	
 	Start(Mode)
 	{
-		This.Mode := Mode
+		This.Mode := Mode, This.Start := True
 		If This.secondCast := False
 			This.setRandDelay_SecondCast()
 		Print("S T A R T")
@@ -50,25 +64,25 @@ Loop
 	{
 		This.tryChangeForm()
 		If(This.readyToLoot())
-		{
-			If((A_TickCount - This.lastLoot) <= 600)
-			{
-				This.errorLoot++
-				If(This.errorLoot > 2)
-					Reload
-			}
-			Else
-				This.errorLoot := 0
-				
+		{		
+			This.comprobateErrorLoot()
+			
 			BlockInput, On
-			SendKey("{W UP}")
-			SendKey("{A UP}")
-			SendKey("{S UP}")
-			SendKey("{D UP}")
+			
+			If GetKeyState("W")
+				SendKey("{W UP}")
+			If GetKeyState("A")
+				SendKey("{A UP}")
+			If GetKeyState("S")
+				SendKey("{S UP}")
+			If GetKeyState("D")
+				SendKey("{D UP}")
+				
 			This.tapButton()
-			SoundPlay, %dirImage%soundLoot.mp3
 			BlockInput, Off
-			Sleep(300, 400)
+			SoundPlay, %dirImage%soundLoot.mp3
+			This.setSleep()
+			
 			; If ((This.Type == "LOOT") And (This.Form == "Travel"))
 			; {
 				; Sleep(0, 50)
@@ -81,6 +95,18 @@ Loop
 		Sleep(16)
 	}
 }
+	}
+	
+	comprobateErrorLoot()
+	{
+		If(A_TickCount - This.lastLoot)
+		{
+			This.errorLoot++
+			If(This.errorLoot > 2)
+				Reload
+		}
+		Else
+			This.errorLoot := 0
 	}
 	
 	tapButton()
@@ -107,13 +133,23 @@ Loop
 			This.setSleep()
 			This.waitCD()
 		}
+		
+		If(GetKeyState("F5"))
+		{
+			initPress := A_TickCount
+			While(GetKeyState("F5"))
+			{
+				If((A_TickCount - initPress) >= 50)
+					ExitApp
+			}
+		}
 	}
 	
 	SecondCast()
 	{
 		If(This.secondCast)
 		{
-			If(This.readyToSecondCast(5000))
+			If(This.readyToSecondCast(10000))
 			{
 				Sleep(100)
 				Loop % Rand(3, 7)
@@ -169,8 +205,18 @@ Loop
 		{
 			This.nClicks := 0
 			This.ClicksRandom := Rand(5, 20)	
-			This.lastCoorX := Rand(Window.W/2 + 50, Window.W - 50)
-			This.lastCoorY := Rand(Window.H/3, Window.H*2/3 - 30)
+			
+			If(This.Mode == "UseMacro")
+			{
+				This.lastCoorX := Rand(Window.W/4 + 50, Window.W - 50)
+				This.lastCoorY := Rand(Window.H/4, Window.H*2/3 - 30)
+			}
+			Else If(This.Mode == "UseClick")
+			{
+				This.lastCoorX := Rand(Window.W/2 + 50, Window.W - 50)
+				This.lastCoorY := Rand(Window.H/3, Window.H*2/3 - 30)
+			}
+			
 		}
 	}
 	
@@ -181,14 +227,14 @@ Loop
 			If(This.Type == "KILL")
 				Sleep(150, 400)
 			Else If (This.Type == "LOOT")
-				Sleep(230, 330)
+				Sleep(330, 400)
 		}
 		Else If(This.Mode == "UseClick")
 		{
 			If(This.Type == "KILL")
 				Sleep(188, 450)
 			Else If (This.Type == "LOOT")
-				Sleep(230, 330)
+				Sleep(330, 400)
 		}
 	}
 	
