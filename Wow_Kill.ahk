@@ -99,7 +99,7 @@ Loop
 	
 	comprobateErrorLoot()
 	{
-		If(A_TickCount - This.lastLoot)
+		If((A_TickCount - This.lastLoot) <= 700)
 		{
 			This.errorLoot++
 			If(This.errorLoot > 2)
